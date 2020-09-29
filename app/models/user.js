@@ -17,5 +17,8 @@ let userSchema = new mySchema({
     type: Number,
     required: true,
   },
+  role:{
+    type: String
+  }
 });
 module.exports = Mongoose.model("users", userSchema);
