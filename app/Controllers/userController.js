@@ -166,7 +166,8 @@ let createUser = (req, res) => {
 let createAuditLog = (req, res) => {
   const createUser = new auditModel({
     username: req.body.username,
-    role: req.body.role
+    role: req.body.role,
+    signintime:req.body.signintime
   }).save((err, result) => {
     if (err) {
       let apiResponse = response.generate(true, err, 404, null);
