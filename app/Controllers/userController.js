@@ -152,6 +152,7 @@ let createUser = (req, res) => {
     email: req.body.email,
     password: passwordLib.hashPassword(req.body.password),
     phoneNo: req.body.phoneNo,
+    role:req.body.role
   }).save((err, result) => {
     if (err) {
       let apiResponse = response.generate(true, err, 404, null);
