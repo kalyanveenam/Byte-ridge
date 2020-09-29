@@ -32,24 +32,16 @@ fs.readdirSync(modelPath).forEach(function (file) {
 let routerPath = path.join(__dirname, "./app/routers");
 let files = "";
 fs.readdirSync(routerPath).forEach(function (file) {
-  files += file + ",";
+  if (~file.indexOf(".js")) {
+    let userRoute = require(path.join(routerPath, file));
+    userRoute.userRoutes(app);
+  }
 });
-files.slice(0, -1);
-if (~files.split(",")[0].indexOf(".js") && files.split(",")[1].indexOf(".js")) {
-  let userRoute = require(path.join(routerPath, files.split(",")[1]));
-  let listRoute = require(routerPath + "/" + files.split(",")[0]);
-  userRoute.userRoutes(app);
-  listRoute.listRoutes(app);
-}
-
-files = files.substring(0, files.length - 1);
 app.use(routeNotFound.routeNotFound);
 const server = http.createServer(app);
-let setSocket = require('./app/Libs/socketLib');
-setSocket.setService(server);
 server.listen(config.PORT, () => {
   if (config.env == "prod") {
-    mongoose.connect(config.mongodb.produrl, {
+    mongoose.connect(config.mongodb.url, {
       useNewUrlParser: true
     });
     mongoose.connection
@@ -60,7 +52,6 @@ server.listen(config.PORT, () => {
 
       });
   } else {
-    console.log('coming here')
     mongoose.connect(config.mongodb.localurl, {
       useNewUrlParser: true,
         

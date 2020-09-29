@@ -1,10 +1,9 @@
 let jwt = require("jsonwebtoken");
-const { config } = require("../config/appConfig");
-let secret = config.JWT_SECRET;
+let secret = process.env.JWT_SECRET || "smkccss";
 let generateToken = (data, callback) => {
   try {
     
-    let tokenDetails = {
+    var tokenDetails = {
       token: jwt.sign(data.toJSON(), secret),
       secret: secret,
     };
@@ -13,16 +12,6 @@ let generateToken = (data, callback) => {
     callback(err, null);
   }
 };
-let verifyTokenWithoutSecret = (authToken, cb) => {
-  jwt.verify(authToken, secret, (err, user) => {
-    if (err) {
-      cb(null, err);
-    } else {
-      cb(user, null);
-    }
-  });
-};
 module.exports = {
   generateToken: generateToken,
-  verifyTokenWithoutSecret:verifyTokenWithoutSecret
 };

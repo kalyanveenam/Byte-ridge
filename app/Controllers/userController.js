@@ -4,6 +4,7 @@ let checkLib = require("../Libs/checkLib");
 let passwordLib = require("../Libs/PasswordLib");
 let userModel = Mongoose.model("users");
 let authModel = Mongoose.model("auth");
+let auditModel= Mongoose.model("audit");
 let token = require("../Libs/tokenLib");
 let emailHelper = require("../Libs/EmailHelper");
 let loginUser = (req, res) => {
@@ -12,7 +13,6 @@ let loginUser = (req, res) => {
       if (req.body.email) {
         userModel.findOne({ email: req.body.email }).exec((err, result) => {
           if (result) {
-            
             resolve(result);
           } else if (checkLib.isEmpty(result)) {
             let apiResponse = response.generate(
@@ -108,7 +108,8 @@ let loginUser = (req, res) => {
                 let apiResponse = response.generate(false, null, 404, err);
                 reject(apiResponse);
               } else {
-                
+                console.log("here token");
+                console.log(tokendetails.userDetails.password);
                 delete tokendetails.token.secret;
                 delete tokendetails.userDetails.password;
 
@@ -122,10 +123,13 @@ let loginUser = (req, res) => {
               }
             });
 
-
+            console.log("coming here");
           } else {
             tokendetails.token.token = result.authToken;
-        
+            console.log("same token present");
+            console.log(result);
+            console.log("same tokendetails present");
+            console.log(tokendetails.token.token);
             delete tokendetails.token.secret;
             let apiResponse = response.generate(false, null, 200, tokendetails);
 
@@ -164,6 +168,34 @@ let createUser = (req, res) => {
     }
   });
 };
+let createAuditLog = (req, res) => {
+  const createUser = new auditModel({
+    username: req.body.username,
+    role: req.body.role
+  }).save((err, result) => {
+    if (err) {
+      let apiResponse = response.generate(true, err, 404, null);
+      res.send(apiResponse);
+    } else {
+      let apiResponse = response.generate(false, null, 200, result);
+      res.send(apiResponse);
+    }
+  });
+};
+let updatesignin=(req,res)=>{
+  auditModel.findOneAndUpdate({_id: req.body.auditId},{signintime:req.body.signintime},(error,result)=>{
+    if(result){
+      res.send(result)
+    }
+  }) 
+  }
+  let updatesignout=(req,res)=>{
+    auditModel.findOneAndUpdate({_id: req.body.auditId},{signouttime:req.body.signouttime},(error,result)=>{
+      if(result){
+        res.send(result)
+      }
+    }) 
+    }
 let logout = (req, res) => {
   let deleteToken = (req, res) => {
     return new Promise((resolve, reject) => {
@@ -214,79 +246,13 @@ let getAllUsers = (req, res) => {
     res.send(result);
   });
 };
-let sendEmail = (req, res) => {
-  let info = emailHelper.sendMail(req.body.to, req.body.subject, req.body.text);
-  info
-    .then((result) => {
-      let apiResponse = response.generate(false, null, 200, "Email Sent");
-      res.send(apiResponse);
-    })
-    .catch((err) => {
-      let apiResponse = response.generate(false, null, 400, "Invalid details");
-      res.status(400).send(apiResponse);
-    });
-};
-let forgotPassword = async (req, res) => {
-  let newPassword = Math.random().toString(20).substr(2, 10);
-  let apiResponse;
-  try {
-    let user = await userModel.find(
-      { email: req.body.email },
-      (err, result) => {
-        if (result && result.length != 0) {
-          result[0]["password"] = passwordLib.hashPassword(newPassword);
-          result[0].save();
-          emailHelper
-            .sendMail(
-              req.body.email,
-              "BTracker Password Reset",
-              "Your new password is " + newPassword
-            )
-            .then((result) => {
-              apiResponse = response.generate(
-                false,
-                "Password is updated",
-                200,
-                user
-              );
-              res.status(200).send(apiResponse);
-            })
-            .catch((err) => {
-              apiResponse = response.generate(
-                false,
-                "Password reset failed",
-                400,
-                err
-              );
-              res.status(400).send(apiResponse);
-            });
-        } else {
-          apiResponse = response.generate(
-            false,
-            "User with the given Email is not found",
-            400,
-            err
-          );
-          res.send(apiResponse);
-        }
-      }
-    );
-  } catch (error) {
-    let apiResponse = response.generate(
-      true,
-      "Unable to rech server",
-      500,
-      error
-    );
-    res.send(apiResponse);
-  }
-};
 
 module.exports = {
   loginUser: loginUser,
   createUser: createUser,
   logout: logout,
   getAllUsers: getAllUsers,
-  sendEmail: sendEmail,
-  forgotPassword: forgotPassword,
+  createAuditLog:createAuditLog,
+  updatesignin:updatesignin,
+  updatesignout: updatesignout
 };
