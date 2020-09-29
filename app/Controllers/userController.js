@@ -178,6 +178,13 @@ let createAuditLog = (req, res) => {
     }
   });
 };
+let getAllLogs=(req,res)=>{
+  auditModel.find({},(error,result)=>{
+    if(result){
+      res.send(result)
+    }
+  }) 
+  }
 let updatesignin=(req,res)=>{
   auditModel.findOneAndUpdate({_id: req.body.auditId},{signintime:req.body.signintime},(error,result)=>{
     if(result){
@@ -250,5 +257,6 @@ module.exports = {
   getAllUsers: getAllUsers,
   createAuditLog:createAuditLog,
   updatesignin:updatesignin,
-  updatesignout: updatesignout
+  updatesignout: updatesignout,
+  getAllLogs:getAllLogs
 };

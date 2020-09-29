@@ -9,6 +9,7 @@ const userRoutes = (app) => {
   app.post(config.apiVersion + "/users/audits", isAuth.authValidation,userCon.createAuditLog);
   app.post(config.apiVersion + "/update/signin", isAuth.authValidation,userCon.updatesignin);
   app.post(config.apiVersion + "/update/signout", isAuth.authValidation,userCon.updatesignout);
+  app.get(config.apiVersion + "/get/logs",userCon.getAllLogs);
 };
 
 module.exports = {
