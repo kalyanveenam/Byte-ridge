@@ -108,8 +108,7 @@ let loginUser = (req, res) => {
                 let apiResponse = response.generate(false, null, 404, err);
                 reject(apiResponse);
               } else {
-                console.log("here token");
-                console.log(tokendetails.userDetails.password);
+                
                 delete tokendetails.token.secret;
                 delete tokendetails.userDetails.password;
 
@@ -123,13 +122,8 @@ let loginUser = (req, res) => {
               }
             });
 
-            console.log("coming here");
-          } else {
+             } else {
             tokendetails.token.token = result.authToken;
-            console.log("same token present");
-            console.log(result);
-            console.log("same tokendetails present");
-            console.log(tokendetails.token.token);
             delete tokendetails.token.secret;
             let apiResponse = response.generate(false, null, 200, tokendetails);
 
